@@ -26,16 +26,15 @@ from edgedb import TransactionOptions
 
 
 class TestSyncTx(tb.SyncQueryTestCase):
-
-    SETUP = '''
+    SETUP = """
         CREATE TYPE test::TransactionTest EXTENDING std::Object {
             CREATE PROPERTY name -> std::str;
         };
-    '''
+    """
 
-    TEARDOWN = '''
+    TEARDOWN = """
         DROP TYPE test::TransactionTest;
-    '''
+    """
 
     def test_sync_transaction_regular_01(self):
         tr = self.client.transaction()
@@ -43,20 +42,24 @@ class TestSyncTx(tb.SyncQueryTestCase):
         with self.assertRaises(ZeroDivisionError):
             for with_tr in tr:
                 with with_tr:
-                    with_tr.execute('''
+                    with_tr.execute(
+                        """
                         INSERT test::TransactionTest {
                             name := 'Test Transaction'
                         };
-                    ''')
+                    """
+                    )
 
                     1 / 0
 
-        result = self.client.query('''
+        result = self.client.query(
+            """
             SELECT
                 test::TransactionTest
             FILTER
                 test::TransactionTest.name = 'Test Transaction';
-        ''')
+        """
+        )
 
         self.assertEqual(result, [])
 
@@ -82,7 +85,8 @@ class TestSyncTx(tb.SyncQueryTestCase):
                 for tx in client.transaction():
                     with tx:
                         tx.execute(
-                            'INSERT test::TransactionTest {name := "test"}')
+                            'INSERT test::TransactionTest {name := "test"}'
+                        )
             except edgedb.TransactionError:
                 self.assertTrue(readonly)
             else:
@@ -109,7 +113,7 @@ class TestSyncTx(tb.SyncQueryTestCase):
                     with self.assertRaisesRegex(
                         edgedb.InterfaceError,
                         "concurrent queries within the same transaction "
-                        "are not allowed"
+                        "are not allowed",
                     ):
                         f1.result(timeout=5)
                         f2.result(timeout=5)

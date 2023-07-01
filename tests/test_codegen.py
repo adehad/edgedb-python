@@ -74,13 +74,13 @@ class TestCodegen(tb.AsyncQueryTestCase):
             else:
                 if p.returncode:
                     raise subprocess.CalledProcessError(
-                        p.returncode, args, output=await p.stdout.read(),
+                        p.returncode,
+                        args,
+                        output=await p.stdout.read(),
                     )
 
         cmd = env.get("EDGEDB_PYTHON_TEST_CODEGEN_CMD", "edgedb-py")
-        await run(
-            cmd, extra_env={"EDGEDB_PYTHON_CODEGEN_PY_VER": "3.8.5"}
-        )
+        await run(cmd, extra_env={"EDGEDB_PYTHON_CODEGEN_PY_VER": "3.8.5"})
         await run(
             cmd,
             "--target",

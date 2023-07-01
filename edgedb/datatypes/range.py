@@ -15,21 +15,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
 
-from typing import Generic, Optional, TypeVar
-
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
 
 class Range(Generic[T]):
-
     __slots__ = ("_lower", "_upper", "_inc_lower", "_inc_upper", "_empty")
 
     def __init__(
         self,
-        lower: Optional[T] = None,
-        upper: Optional[T] = None,
+        lower: T | None = None,
+        upper: T | None = None,
         *,
         inc_lower: bool = True,
         inc_upper: bool = False,
@@ -38,13 +37,10 @@ class Range(Generic[T]):
         self._empty = empty
 
         if empty:
-            if (
-                lower != upper
-                or lower is not None and inc_upper and inc_lower
-            ):
+            if lower != upper or lower is not None and inc_upper and inc_lower:
                 raise ValueError(
                     "conflicting arguments in range constructor: "
-                    "\"empty\" is `true` while the specified bounds "
+                    '"empty" is `true` while the specified bounds '
                     "suggest otherwise"
                 )
 
@@ -57,7 +53,7 @@ class Range(Generic[T]):
             self._inc_upper = upper is not None and inc_upper
 
     @property
-    def lower(self) -> Optional[T]:
+    def lower(self) -> T | None:
         return self._lower
 
     @property
@@ -65,7 +61,7 @@ class Range(Generic[T]):
         return self._inc_lower
 
     @property
-    def upper(self) -> Optional[T]:
+    def upper(self) -> T | None:
         return self._upper
 
     @property
@@ -87,7 +83,7 @@ class Range(Generic[T]):
             self._upper,
             self._inc_lower,
             self._inc_upper,
-            self._empty
+            self._empty,
         ) == (
             other._lower,
             other._upper,
@@ -97,13 +93,15 @@ class Range(Generic[T]):
         )
 
     def __hash__(self) -> int:
-        return hash((
-            self._lower,
-            self._upper,
-            self._inc_lower,
-            self._inc_upper,
-            self._empty,
-        ))
+        return hash(
+            (
+                self._lower,
+                self._upper,
+                self._inc_lower,
+                self._inc_upper,
+                self._empty,
+            )
+        )
 
     def __str__(self) -> str:
         if self._empty:

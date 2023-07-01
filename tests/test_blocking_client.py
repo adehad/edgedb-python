@@ -77,10 +77,10 @@ class TestBlockingClient(tb.SyncQueryTestCase):
                 client = self.create_client(max_concurrency=10)
 
                 def worker():
-                    self.assertEqual(client.query('SELECT 1'), [1])
-                    self.assertEqual(client.query_single('SELECT 1'), 1)
-                    self.assertEqual(client.query_json('SELECT 1'), '[1]')
-                    self.assertEqual(client.query_single_json('SELECT 1'), '1')
+                    self.assertEqual(client.query("SELECT 1"), [1])
+                    self.assertEqual(client.query_single("SELECT 1"), 1)
+                    self.assertEqual(client.query_json("SELECT 1"), "[1]")
+                    self.assertEqual(client.query_single_json("SELECT 1"), "1")
 
                 tasks = [threading.Thread(target=worker) for _ in range(n)]
                 for task in tasks:
@@ -102,9 +102,11 @@ class TestBlockingClient(tb.SyncQueryTestCase):
         client = self.create_client(max_concurrency=1)
 
         client.with_transaction_options(
-            edgedb.TransactionOptions(readonly=True))
+            edgedb.TransactionOptions(readonly=True)
+        )
         client.with_retry_options(
-            edgedb.RetryOptions(attempts=1, backoff=edgedb.default_backoff))
+            edgedb.RetryOptions(attempts=1, backoff=edgedb.default_backoff)
+        )
         for tx in client.transaction():
             with tx:
                 self.assertEqual(tx.query_single("SELECT 7*8"), 56)
@@ -120,12 +122,13 @@ class TestBlockingClient(tb.SyncQueryTestCase):
         with self.create_client(
             max_concurrency=1,
         ) as client:
-
-            has_sleep = client.query_single("""
+            has_sleep = client.query_single(
+                """
                 SELECT EXISTS(
                     SELECT schema::Function FILTER .name = 'sys::_sleep'
                 )
-            """)
+            """
+            )
             if not has_sleep:
                 self.skipTest("No sys::_sleep function")
 
@@ -159,7 +162,6 @@ class TestBlockingClient(tb.SyncQueryTestCase):
             max_concurrency=10,
             connection_class=MyConnection,
         ) as client:
-
             tasks = [threading.Thread(target=test) for _ in range(N)]
             for task in tasks:
                 task.start()
@@ -424,7 +426,7 @@ class TestBlockingClient(tb.SyncQueryTestCase):
 
         async def cb(r: asyncio.StreamReader, w: asyncio.StreamWriter):
             ur, uw = await asyncio.open_connection(
-                con_args['host'], con_args['port']
+                con_args["host"], con_args["port"]
             )
             done.clear()
             task = self.loop.create_task(proxy(r, uw))
@@ -438,12 +440,10 @@ class TestBlockingClient(tb.SyncQueryTestCase):
                     w.close()
                     uw.close()
 
-        server = await asyncio.start_server(
-            cb, '127.0.0.1', 0
-        )
+        server = await asyncio.start_server(cb, "127.0.0.1", 0)
         port = server.sockets[0].getsockname()[1]
         client = self.create_client(
-            host='127.0.0.1',
+            host="127.0.0.1",
             port=port,
             max_concurrency=1,
             wait_until_available=5,

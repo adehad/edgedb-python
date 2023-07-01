@@ -26,9 +26,7 @@ from edgedb.datatypes.datatypes import RelativeDuration, DateDuration
 
 
 class TestDatetimeTypes(tb.SyncQueryTestCase):
-
     async def test_duration_01(self):
-
         duration_kwargs = [
             dict(),
             dict(microseconds=1),
@@ -54,10 +52,13 @@ class TestDatetimeTypes(tb.SyncQueryTestCase):
         durs = [timedelta(**d) for d in duration_kwargs]
 
         # Test encode/decode roundtrip
-        durs_from_db = self.client.query('''
+        durs_from_db = self.client.query(
+            """
             WITH args := array_unpack(<array<duration>>$0)
             SELECT args;
-        ''', durs)
+        """,
+            durs,
+        )
         self.assertEqual(list(durs_from_db), durs)
 
     async def test_relative_duration_01(self):
@@ -84,7 +85,7 @@ class TestDatetimeTypes(tb.SyncQueryTestCase):
                 dict(
                     microseconds=random.randint(-1000000000, 1000000000),
                     days=random.randint(-500, 500),
-                    months=random.randint(-50, 50)
+                    months=random.randint(-50, 50),
                 )
             )
 
@@ -92,16 +93,22 @@ class TestDatetimeTypes(tb.SyncQueryTestCase):
 
         # Test that RelativeDuration.__str__ formats the
         # same as <str><cal::relative_duration>
-        durs_as_text = self.client.query('''
+        durs_as_text = self.client.query(
+            """
             WITH args := array_unpack(<array<cal::relative_duration>>$0)
             SELECT <str>args;
-        ''', durs)
+        """,
+            durs,
+        )
 
         # Test encode/decode roundtrip
-        durs_from_db = self.client.query('''
+        durs_from_db = self.client.query(
+            """
             WITH args := array_unpack(<array<cal::relative_duration>>$0)
             SELECT args;
-        ''', durs)
+        """,
+            durs,
+        )
 
         self.assertEqual(durs_as_text, [str(d) for d in durs])
         self.assertEqual(list(durs_from_db), durs)
@@ -145,7 +152,7 @@ class TestDatetimeTypes(tb.SyncQueryTestCase):
             delta_kwargs.append(
                 dict(
                     days=random.randint(-500, 500),
-                    months=random.randint(-50, 50)
+                    months=random.randint(-50, 50),
                 )
             )
 
@@ -153,16 +160,22 @@ class TestDatetimeTypes(tb.SyncQueryTestCase):
 
         # Test that DateDuration.__str__ formats the
         # same as <str><cal::relative_duration>
-        durs_as_text = self.client.query('''
+        durs_as_text = self.client.query(
+            """
             WITH args := array_unpack(<array<cal::date_duration>>$0)
             SELECT <str>args;
-        ''', durs)
+        """,
+            durs,
+        )
 
         # Test encode/decode roundtrip
-        durs_from_db = self.client.query('''
+        durs_from_db = self.client.query(
+            """
             WITH args := array_unpack(<array<cal::date_duration>>$0)
             SELECT args;
-        ''', durs)
+        """,
+            durs,
+        )
 
         for db_dur, client_dur in zip(durs_as_text, durs):
             self.assertEqual(db_dur, str(client_dur))
