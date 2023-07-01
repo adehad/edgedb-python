@@ -12,6 +12,11 @@ warn_unused_configs = true
 namespace_packages = true
 # plugins = "pydantic.mypy"
 
+
+[tool.black]
+line-length = 79
+
+
 [tool.ruff]
 select = [
     "E", # pydocstyle
@@ -36,7 +41,7 @@ ignore = [
 ]
 
 # Same as Black.
-line-length = 88
+line-length = 79
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
